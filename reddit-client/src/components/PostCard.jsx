@@ -1,4 +1,13 @@
+import { useState } from "react";
+
+const PLACEHOLDER =
+  "https://via.placeholder.com/120x80?text=No+Image";
+
 export default function PostCard({ post }) {
+  const [imgError, setImgError] = useState(false);
+
+  const showImage = post.image && !imgError;
+
   return (
     <article
       style={{
@@ -10,15 +19,18 @@ export default function PostCard({ post }) {
         background: "#fff",
       }}
     >
-      {post.thumbnail && (
-        <img
-          src={post.thumbnail}
-          alt=""
-          width="120"
-          height="80"
-          style={{ objectFit: "cover", borderRadius: "4px" }}
-        />
-      )}
+      <img
+        src={showImage ? post.image : PLACEHOLDER}
+        alt=""
+        width="120"
+        height="80"
+        onError={() => setImgError(true)}
+        style={{
+          objectFit: "cover",
+          borderRadius: "4px",
+          flexShrink: 0,
+        }}
+      />
 
       <div>
         <h3 style={{ margin: 0 }}>{post.title}</h3>
