@@ -2,14 +2,14 @@
   command = "npm run build"
   publish = "dist"
 
-# 1) Proxy Reddit API
+# Proxy Reddit through AllOrigins (production-safe)
 [[redirects]]
   from = "/api/*"
-  to = "https://www.reddit.com/:splat"
+  to = "https://api.allorigins.win/raw?url=https://www.reddit.com/:splat"
   status = 200
   force = true
 
-# 2) SPA fallback
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
