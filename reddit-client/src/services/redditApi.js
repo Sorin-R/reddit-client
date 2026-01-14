@@ -1,5 +1,15 @@
+const IS_PROD = import.meta.env.PROD;
+const ALL_ORIGINS = "https://api.allorigins.win/get?url=";
+
 export async function fetchJson(url) {
-  const response = await fetch(url);
+  let finalUrl = url;
+
+  // ✅ Production → proxy through AllOrigins JSON API
+  if (IS_PROD) {
+    finalUrl = `${ALL_ORIGINS}${encodeURIComponent(url)}`;
+  }
+
+  const response = await fetch(finalUrl);
 
   if (!response.ok) {
     if (response.status === 429) {
@@ -8,17 +18,34 @@ export async function fetchJson(url) {
     throw new Error("NETWORK_ERROR");
   }
 
+  // ✅ Production: AllOrigins wraps response inside { contents }
+  if (IS_PROD) {
+    const wrapped = await response.json();
+
+    try {
+      return JSON.parse(wrapped.contents);
+    } catch {
+      throw new Error("INVALID_JSON");
+    }
+  }
+
+  // ✅ Local dev: direct JSON
   return response.json();
 }
 
 export function buildRedditUrl({ category, searchTerm }) {
+  // ✅ Local dev uses Vite proxy
+  const base = IS_PROD
+    ? `https://www.reddit.com/r/${category}`
+    : `/api/r/${category}`;
+
   if (searchTerm) {
-    return `/api/r/${category}/search.json?q=${encodeURIComponent(
+    return `${base}/search.json?q=${encodeURIComponent(
       searchTerm
     )}&restrict_sr=1&limit=25`;
   }
 
-  return `/api/r/${category}.json?limit=25`;
+  return `${base}.json?limit=25`;
 }
 
 export function mapPosts(json) {
