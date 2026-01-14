@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import placeholder from "../assets/placeholder.png";
 
-const PLACEHOLDER = 'https://via.placeholder.com/120x80?text=No+Image';
+const PLACEHOLDER = placeholder;
 
 export default function PostCard({ post }) {
     const [imgError, setImgError] = useState(false);
