@@ -8,6 +8,8 @@ import {
   buildRedditUrl,
   mapPosts,
 } from "./services/redditApi";
+import { Routes, Route } from "react-router-dom";
+import PostDetail from "./pages/PostDetail";
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,34 +63,48 @@ export default function App() {
     loadPosts();
   }, [activeCategory, searchTerm, cacheKey, cache]);
 
-  return (
+    return (
     <div style={{ padding: "1rem", maxWidth: "900px", margin: "0 auto" }}>
-      <Header searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <Header
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+              />
 
-      <div style={{ margin: "1rem 0" }}>
-        <CategoryTabs
-          categories={categories}
-          activeCategory={activeCategory}
-          onSelect={setActiveCategory}
+              <div style={{ margin: "1rem 0" }}>
+                <CategoryTabs
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  onSelect={setActiveCategory}
+                />
+              </div>
+
+              {status === "loading" && <p>Loading posts...</p>}
+
+              {status === "error" && (
+                <div>
+                  <p>
+                    {error === "RATE_LIMIT"
+                      ? "Reddit is rate limiting requests. Please wait a moment and try again."
+                      : "Something went wrong while loading posts."}
+                  </p>
+                  <button onClick={() => window.location.reload()}>
+                    Retry
+                  </button>
+                </div>
+              )}
+
+              {status === "success" && <PostList posts={posts} />}
+            </>
+          }
         />
-      </div>
 
-      {status === "loading" && <p>Loading posts...</p>}
-
-      {status === "error" && (
-        <div>
-          <p>
-            {error === "RATE_LIMIT"
-              ? "Reddit is rate limiting requests. Please wait a moment and try again."
-              : "Something went wrong while loading posts."}
-          </p>
-          <button onClick={() => window.location.reload()}>
-            Retry
-          </button>
-        </div>
-      )}
-
-      {status === "success" && <PostList posts={posts} />}
+        <Route path="/post/:id" element={<PostDetail />} />
+      </Routes>
     </div>
   );
 }
